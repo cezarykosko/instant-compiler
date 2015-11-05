@@ -7,15 +7,15 @@ import           System.Exit          (exitFailure, exitSuccess)
 import           System.IO            (hGetContents, stdin)
 
 import           Grammar.AbsGrammar
+import           Grammar.ErrM
 import           Grammar.LexGrammar
 import           Grammar.ParGrammar
 import           Grammar.PrintGrammar
 import           Grammar.SkelGrammar
 
+import           Utils.JVM
 
-
-
-import           Grammar.ErrM
+import           Control.Monad
 
 type ParseFun a = [Token] -> Err a
 
@@ -24,7 +24,7 @@ myLLexer = myLexer
 type Verbosity = Int
 
 putStrV :: Verbosity -> String -> IO ()
-putStrV v s = if v > 1 then putStrLn s else return ()
+putStrV v s = when (v > 1) $ putStrLn s
 
 runFile :: Verbosity -> ParseFun Program -> FilePath -> IO ()
 runFile v p f = putStrLn f >> readFile f >>= run v p
@@ -49,48 +49,9 @@ showTree v tree
       putStrV v $ "\n[Abstract Syntax]\n\n" ++ show tree
       putStrV v $ "\n[Linearized tree]\n\n" ++ printTree tree
 
-usage :: IO ()
-usage = do
-  putStrLn $ unlines
-    [ "usage: Call with one of the following argument combinations:"
-    , "  --help          Display this help message."
-    , "  (no arguments)  Parse stdin verbosely."
-    , "  (files)         Parse content of files verbosely."
-    , "  -s (files)      Silent mode. Parse content of files silently."
-    ]
-  exitFailure
-
 main :: IO ()
 main = do
   args <- getArgs
   case args of
-    ["--help"] -> usage
-    [] -> hGetContents stdin >>= run 2 pProgram
-    "-s":fs -> mapM_ (runFile 0 pProgram) fs
+    [] -> getContents >>= run 2 pProgram
     fs -> mapM_ (runFile 2 pProgram) fs
-
-
-depth :: Program -> [Int]
-depth (Prog s) = depth__ s
-
-depth__ :: [Stmt] -> [Int]
-depth__ (SAss _ e : ss) = (1 + depth_ e) : depth__ ss
-depth__ (SExp e : ss) = depth_ e : depth__ ss
-depth__ [] = []
-
-d_ :: Exp -> Exp -> Int
-d_ e1 e2 =
-  let
-    d1 = depth_ e1
-    d2 = depth_ e2
-  in
-    min (max (d1 + 1) d2) (max d1 (d2 + 1))
-
-
-depth_ :: Exp -> Int
-depth_ (ExpAdd e1 e2) = d_ e1 e2
-depth_ (ExpSub e1 e2) = d_ e1 e2
-depth_ (ExpMul e1 e2) = d_ e1 e2
-depth_ (ExpDiv e1 e2) = d_ e1 e2
-depth_ (ExpLit i) = 1
-depth_ (ExpVar i) = 1
