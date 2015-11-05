@@ -2,20 +2,20 @@
 module Main where
 
 
-import System.IO ( stdin, hGetContents )
-import System.Environment ( getArgs, getProgName )
-import System.Exit ( exitFailure, exitSuccess )
+import           System.Environment   (getArgs, getProgName)
+import           System.Exit          (exitFailure, exitSuccess)
+import           System.IO            (hGetContents, stdin)
 
-import Grammar.LexGrammar
-import Grammar.ParGrammar
-import Grammar.SkelGrammar
-import Grammar.PrintGrammar
-import Grammar.AbsGrammar
-
-
+import           Grammar.AbsGrammar
+import           Grammar.LexGrammar
+import           Grammar.ParGrammar
+import           Grammar.PrintGrammar
+import           Grammar.SkelGrammar
 
 
-import ErrM
+
+
+import           Grammar.ErrM
 
 type ParseFun a = [Token] -> Err a
 
@@ -24,12 +24,12 @@ myLLexer = myLexer
 type Verbosity = Int
 
 putStrV :: Verbosity -> String -> IO ()
-putStrV v s = Control.Monad.when (v > 1) $ putStrLn s
+putStrV v s = if v > 1 then putStrLn s else return ()
 
-runFile :: (Print a, Show a) => Verbosity -> ParseFun a -> FilePath -> IO ()
+runFile :: Verbosity -> ParseFun Program -> FilePath -> IO ()
 runFile v p f = putStrLn f >> readFile f >>= run v p
 
-run :: (Print a, Show a) => Verbosity -> ParseFun a -> String -> IO ()
+run :: Verbosity -> ParseFun Program -> String -> IO ()
 run v p s = let ts = myLLexer s in case p ts of
            Bad s    -> do putStrLn "\nParse              Failed...\n"
                           putStrV v "Tokens:"
@@ -37,6 +37,7 @@ run v p s = let ts = myLLexer s in case p ts of
                           putStrLn s
                           exitFailure
            Ok  tree -> do putStrLn "\nParse Successful!"
+                          putStrLn $ "\n depths" ++ show (depth tree)
                           showTree v tree
 
                           exitSuccess
@@ -64,6 +65,32 @@ main = do
   args <- getArgs
   case args of
     ["--help"] -> usage
-    [] -> getContents stdin >>= run 2 pProgram
+    [] -> hGetContents stdin >>= run 2 pProgram
     "-s":fs -> mapM_ (runFile 0 pProgram) fs
     fs -> mapM_ (runFile 2 pProgram) fs
+
+
+depth :: Program -> [Int]
+depth (Prog s) = depth__ s
+
+depth__ :: [Stmt] -> [Int]
+depth__ (SAss _ e : ss) = (1 + depth_ e) : depth__ ss
+depth__ (SExp e : ss) = depth_ e : depth__ ss
+depth__ [] = []
+
+d_ :: Exp -> Exp -> Int
+d_ e1 e2 =
+  let
+    d1 = depth_ e1
+    d2 = depth_ e2
+  in
+    min (max (d1 + 1) d2) (max d1 (d2 + 1))
+
+
+depth_ :: Exp -> Int
+depth_ (ExpAdd e1 e2) = d_ e1 e2
+depth_ (ExpSub e1 e2) = d_ e1 e2
+depth_ (ExpMul e1 e2) = d_ e1 e2
+depth_ (ExpDiv e1 e2) = d_ e1 e2
+depth_ (ExpLit i) = 1
+depth_ (ExpVar i) = 1
