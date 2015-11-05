@@ -2,27 +2,24 @@ module Utils.JVM where
 
 import           Grammar.AbsGrammar
 
-depth :: Program -> [Int]
-depth (Prog s) = depth__ s
+depth :: Program -> Int
+depth (Prog s) = foldl (\x y -> max x $ stmtDepth y) 0 s
 
-depth__ :: [Stmt] -> [Int]
-depth__ (SAss _ e : ss) = (1 + depth_ e) : depth__ ss
-depth__ (SExp e : ss) = depth_ e : depth__ ss
-depth__ [] = []
+stmtDepth (SAss _ e) = 1 + expDepth e
+stmtDepth (SExp e) = expDepth e
 
-d_ :: Exp -> Exp -> Int
-d_ e1 e2 =
+expDepth :: Exp -> Int
+expDepth (ExpAdd e1 e2) = _expDepth e1 e2
+expDepth (ExpSub e1 e2) = _expDepth e1 e2
+expDepth (ExpMul e1 e2) = _expDepth e1 e2
+expDepth (ExpDiv e1 e2) = _expDepth e1 e2
+expDepth (ExpLit i) = 1
+expDepth (ExpVar i) = 1
+
+_expDepth :: Exp -> Exp -> Int
+_expDepth e1 e2 =
   let
-    d1 = depth_ e1
-    d2 = depth_ e2
+    d1 = expDepth e1
+    d2 = expDepth e2
   in
     min (max (d1 + 1) d2) (max d1 (d2 + 1))
-
-
-depth_ :: Exp -> Int
-depth_ (ExpAdd e1 e2) = d_ e1 e2
-depth_ (ExpSub e1 e2) = d_ e1 e2
-depth_ (ExpMul e1 e2) = d_ e1 e2
-depth_ (ExpDiv e1 e2) = d_ e1 e2
-depth_ (ExpLit i) = 1
-depth_ (ExpVar i) = 1

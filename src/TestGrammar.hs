@@ -19,8 +19,6 @@ import           Control.Monad
 
 type ParseFun a = [Token] -> Err a
 
-myLLexer = myLexer
-
 type Verbosity = Int
 
 putStrV :: Verbosity -> String -> IO ()
@@ -30,14 +28,14 @@ runFile :: Verbosity -> ParseFun Program -> FilePath -> IO ()
 runFile v p f = putStrLn f >> readFile f >>= run v p
 
 run :: Verbosity -> ParseFun Program -> String -> IO ()
-run v p s = let ts = myLLexer s in case p ts of
+run v p s = let ts = myLexer s in case p ts of
            Bad s    -> do putStrLn "\nParse              Failed...\n"
                           putStrV v "Tokens:"
                           putStrV v $ show ts
                           putStrLn s
                           exitFailure
            Ok  tree -> do putStrLn "\nParse Successful!"
-                          putStrLn $ "\n depths" ++ show (depth tree)
+                          putStrLn $ "\n depths " ++ show (depth tree)
                           showTree v tree
 
                           exitSuccess
