@@ -1,0 +1,17 @@
+#!/bin/bash
+
+FILEPATH=$1
+FILENAME_W_EXTENSION=${FILEPATH##*/}
+FILENAME=${FILENAME_W_EXTENSION%.*}
+FILEDIR=${FILEPATH%/*.*}
+
+EXEPATH=dist/build/jvm-compiler/jvm-compiler
+JASMIN=lib/jasmin.jar
+
+if [ -f $EXEPATH ]
+then
+  echo ".class "$FILENAME > $FILENAME.j
+  $EXEPATH $FILEPATH >> $FILENAME.j && java -jar $JASMIN -d $FILEDIR $FILENAME.j
+else
+  echo "Executable does not exist. Did you call 'make'?"
+fi

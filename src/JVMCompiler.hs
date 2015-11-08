@@ -23,7 +23,6 @@ module Main where
   main = do
     args <- getArgs
     case args of
-      [] -> getContents >>= run pProgram callback
       fs -> mapM_ (runFile pProgram callback) fs
 
   type Compilation a = ReaderT Vars IO a
@@ -36,7 +35,6 @@ module Main where
       putStrLn prefix
       putStrLn $ "  .limit stack " ++ show (1 + depth)
       putStrLn $ "  .limit locals " ++ show ((Map.size lvars) + 1)
-      putStrLn $ show program
       runReaderT (process program) lvars
       putStrLn suffix
 

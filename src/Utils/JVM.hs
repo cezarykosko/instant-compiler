@@ -118,12 +118,12 @@ jvmConst x | x == -1 = "  iconst_m1"
         | otherwise = "  bipush " ++ show x
 
 
-jvmLoad :: Int -> String
+jvmLoad :: Integer -> String
 jvmLoad x
         | x >= 0 && x <=3 = "  iload_" ++ show x
         | otherwise = "  iload " ++ show x
 
-jvmStore :: Int -> String
+jvmStore :: Integer -> String
 jvmStore x
         | x >= 0 && x <=3 = "  istore_" ++ show x
         | otherwise = "  istore " ++ show x
