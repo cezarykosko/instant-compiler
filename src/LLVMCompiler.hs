@@ -83,23 +83,23 @@ module Main where
     refE1 <- expProcess e1
     refE2 <- expProcess e2
     newID <- getId
-    lift $ putStrLn $ "  " ++ show newID ++ " = add nsw i32 " ++ show refE1 ++ "," ++ show refE2
+    lift $ putStrLn $ "  " ++ show newID ++ " = add nsw i32 " ++ show refE1 ++ ", " ++ show refE2
     return newID
   expProcess (ExpSub e1 e2) = do
     refE1 <- expProcess e1
     refE2 <- expProcess e2
     newID <- getId
-    lift $ putStrLn $ "  " ++ show newID ++ " = sub nsw i32 " ++ show refE1 ++ "," ++ show refE2
+    lift $ putStrLn $ "  " ++ show newID ++ " = sub nsw i32 " ++ show refE1 ++ ", " ++ show refE2
     return newID
   expProcess (ExpMul e1 e2) = do
     refE1 <- expProcess e1
     refE2 <- expProcess e2
     newID <- getId
-    lift $ putStrLn $ "  " ++ show newID ++ " = mul nsw i32 " ++ show refE1 ++ "," ++ show refE2
+    lift $ putStrLn $ "  " ++ show newID ++ " = mul nsw i32 " ++ show refE1 ++ ", " ++ show refE2
     return newID
   expProcess (ExpDiv e1 e2) = do
     refE1 <- expProcess e1
     refE2 <- expProcess e2
     newID <- getId
-    lift $ putStrLn $ "  " ++ show newID ++ " = sdiv nsw i32 " ++ show refE1 ++ "," ++ show refE2
+    lift $ putStrLn $ "  " ++ show newID ++ " = sdiv i32 " ++ show refE1 ++ ", " ++ show refE2
     return newID
