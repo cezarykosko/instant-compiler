@@ -17,8 +17,10 @@ data Stmt = SAss Ident Exp | SExp Exp
 data Exp
     = ExpAdd Exp Exp
     | ExpSub Exp Exp
+    | ExpSubRev Exp Exp
     | ExpMul Exp Exp
     | ExpDiv Exp Exp
+    | ExpDivRev Exp Exp
     | ExpLit Integer
     | ExpVar Ident
   deriving (Eq, Ord, Show, Read)
