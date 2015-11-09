@@ -3,15 +3,21 @@
 FILEPATH=$1
 FILENAME_W_EXTENSION=${FILEPATH##*/}
 FILENAME=${FILENAME_W_EXTENSION%.*}
-FILEDIR=${FILEPATH%/*.*}
+FILEDIR=${FILEPATH%$FILENAME_W_EXTENSION}
 
-EXEPATH=dist/build/jvm-compiler/jvm-compiler
-JASMIN=lib/jasmin.jar
+EXEPATH=$(dirname $BASH_SOURCE)/dist/build/jvm-compiler/jvm-compiler
+JASMIN=$(dirname $BASH_SOURCE)/lib/jasmin.jar
+
 
 if [ -f $EXEPATH ]
 then
-  echo ".class "$FILENAME > $FILENAME.j
-  $EXEPATH $FILEPATH >> $FILENAME.j && java -jar $JASMIN -d $FILEDIR $FILENAME.j
+  echo ".class "$FILENAME > $FILEDIR$FILENAME.j
+  if [[ "$FILEDIR" == "" ]]
+  then
+    $EXEPATH $FILEPATH >> $FILENAME.j && java -jar $JASMIN $FILENAME.j
+  else
+    $EXEPATH $FILEPATH >> $FILEDIR$FILENAME.j && java -jar $JASMIN -d $FILEDIR $FILEDIR$FILENAME.j
+  fi
 else
   echo "Executable does not exist. Did you call 'make'?"
 fi

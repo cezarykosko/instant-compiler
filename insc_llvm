@@ -3,14 +3,14 @@
 FILEPATH=$1
 FILENAME_W_EXTENSION=${FILEPATH##*/}
 FILENAME=${FILENAME_W_EXTENSION%.*}
-FILEDIR=${FILEPATH%/*.*}
+FILEDIR=${FILEPATH%$FILENAME_W_EXTENSION}
 
-EXEPATH=dist/build/llvm-compiler/llvm-compiler
+EXEPATH=$(dirname $BASH_SOURCE)/dist/build/llvm-compiler/llvm-compiler
 LLVMAS=llvm-as
 
 if [ -f $EXEPATH ]
 then
-  $EXEPATH $FILEPATH > $FILENAME.ll && $LLVMAS $FILENAME.ll -o $FILEDIR/$FILENAME.bc
+  $EXEPATH $FILEPATH > $FILEDIR$FILENAME.ll && $LLVMAS $FILEDIR$FILENAME.ll -o $FILEDIR$FILENAME.bc
 else
   echo "Executable does not exist. Did you call 'make'?"
 fi
