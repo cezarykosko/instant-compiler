@@ -1,0 +1,19 @@
+Cezary Kosko ck337256
+Instant Compiler
+
+1. Budowanie
+'make' woła 'cabal configure && cabal build', co skutkuje zbudowaniem katalogu 'dist', w którego odpowiednich podkatalogach są binaria wywoływane przez skrypty insc_*vm
+2. zewnętrzne biblioteki
+- jasmin.jar - do tłumaczenia plików .j do bytecode jvm
+- array - używana przez źródła wytworzone przez bnfc
+- containers - słownik w Haskellu
+- mtl i transformers - do ReaderT, StateT i liftów w Haskellu
+3. struktura źródeł
+3a) src/
+- Grammar/ - pliki wygenerowane przez BNFC do parsowania gramatyki
+- Utils/Common.hs plik z metodami parsującymi input
+- Utils/*VM.hs - pliki z metodami specyficznymi dla typu kompilacji, które niepotrzebnie bałaganiłyby właściwe pliki z kompilacją
+- *VMCompiler.hs - pliki z logiką dot. odpowiedniego typu kompilacji
+3b) /
+- insc_*vm - pliki wywołujące odpowiednie binaria i kompilujące kod instant
+- instant-compiler.cabal, Setup.hs - pliki configuracyjne projektu cabal
