@@ -114,8 +114,10 @@ _expDepth e1 e2 =
 
 jvmConst :: Integer -> String
 jvmConst x | x == -1 = "  iconst_m1"
-        | x >= 0 && x <=5 = "  iconst_" ++ show x
-        | otherwise = "  bipush " ++ show x
+        | x >= 0 && x <= 5 = "  iconst_" ++ show x
+        | x >= -128 && x <= 127 = "  bipush " ++ show x
+        | x >= -32768 && x <= 32767 = "  sipush " ++ show x
+        | otherwise = "  ldc " ++ show x
 
 
 jvmLoad :: Integer -> String
